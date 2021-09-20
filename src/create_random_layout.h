@@ -8,40 +8,39 @@
 #include <random>
 
 #include "./RandomLayoutParams.h"
-#include "common/shots/TableLayout.h"
-#include "common/config/TableDimensions.h"
+#include "common/shots/Layout.h"
 
 namespace billiards::layout {
 
 	inline
-	void create_random_layout(
-		std::default_random_engine& engine,
-		const RandomLayoutParams& params,
-		const config::TableDimensions& dims,
-		layout::TableLayout& layout
-	) {
+	void create_random_layout(const RandomLayoutParams& params, layout::Layout& layout) {
 		layout.balls.clear();
-		
-		// Should come from somewhere
-		double BALL_DIAM = 2.26;
 
-		std::uniform_real_distribution<double> dist{0.0, 1.0};
+		std::default_random_engine engine{*params.seed};
+		
+		std::uniform_real_distribution<double> xdist{
+			params.ball_radius, params.dimensions.width - params.ball_radius};
+		std::uniform_real_distribution<double> ydist{
+			params.ball_radius, params.dimensions.height - params.ball_radius};
+
+		// Should come from the parameters...
 		for (const config::BallInfo& info : config::balls::ALL_BALLS()) {
 			bool intersects;
 			geometry::Point point;
 			do {
 				// TODO: This allows balls too close to the edge...
-				point = geometry::Point{dims.width * dist(engine), dims.height * dist(engine)};
+				point = geometry::Point{xdist(engine), ydist(engine)};
 				intersects = false;
 				for (const auto& other : layout.balls) {
 					double dist = (point - other.location).norm();
-					if (dist < BALL_DIAM) {
+					if (dist < 2 * params.ball_radius) {
 						intersects = true;
+						break;
 					}
 				}
 			} while (intersects);
 			
-			layout.balls.push_back(layout::LocatedBall{info, point});
+			layout.balls.emplace_back(info, point);
 		}
 	}
 }

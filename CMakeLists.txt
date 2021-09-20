@@ -9,7 +9,7 @@ find_package(Threads REQUIRED)
 add_executable(
         layouts_api
 
-        src/layouts_api.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/src/layouts_api.cpp
 )
 
 target_include_directories(
