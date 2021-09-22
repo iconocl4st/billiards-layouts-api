@@ -24,3 +24,6 @@ target_link_libraries(
 
 	    Threads::Threads
 )
+
+install(TARGETS layouts_api DESTINATION /app)
+
