@@ -13,10 +13,16 @@
 namespace billiards::layout {
 
 	inline
-	void create_random_layout(const RandomLayoutParams& params, layout::Layout& layout) {
+	void create_random_layout(std::random_device& ran, const RandomLayoutParams& params, layout::Layout& layout) {
 		layout.balls.clear();
 
-		std::default_random_engine engine{*params.seed};
+		unsigned seed;
+		if (params.seed) {
+			seed = params.seed.value();
+		} else {
+			seed = ran();
+		}
+		std::default_random_engine engine{seed};
 		
 		std::uniform_real_distribution<double> xdist{
 			params.ball_radius, params.dimensions.width - params.ball_radius};

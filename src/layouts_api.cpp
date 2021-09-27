@@ -17,11 +17,14 @@
 
 
 int main(int argc, char **argv) {
+	std::random_device ran;
 	crow::SimpleApp app;
+
+	DO_STATUS_ENDPOINT();
 
 	CROW_ROUTE(app, "/random/")
 		.methods("POST"_method, "OPTIONS"_method)
-		([](const crow::request& req) {
+		([&ran](const crow::request& req) {
 			if (req.method == "OPTIONS"_method) {
 				HANDLE_OPTIONS;
 			} else if (req.method == "POST"_method) {
@@ -33,7 +36,7 @@ int main(int argc, char **argv) {
 				}
 
 				billiards::layout::Layout layout;
-				billiards::layout::create_random_layout(params, layout);
+				billiards::layout::create_random_layout(ran, params, layout);
 				
 				RETURN_SUCCESS_WITH_DATA("Generated random layout", "layout", layout);
 			} else {

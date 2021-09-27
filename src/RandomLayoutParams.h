@@ -11,10 +11,6 @@
 
 namespace billiards::layout {
 
-	namespace locals {
-		std::random_device ran;
-	}
-
 	class RandomLayoutParams : public json::Serializable {
 	public:
 		// optional?
@@ -45,7 +41,7 @@ namespace billiards::layout {
 			if (value.contains("seed") && value["seed"].is_number()) {
 				seed = value["seed"].get<uint64_t>();
 			} else {
-				seed = locals::ran();
+				seed = {};
 			}
 			if (value.contains("ball-radius") && value["ball-radius"].is_number()) {
 				ball_radius = value["ball-radius"].get<double>();
