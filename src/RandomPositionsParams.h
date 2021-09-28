@@ -7,24 +7,26 @@
 
 #include <optional>
 
-#include "common/shots/Layout.h"
+#include "common/shots/Locations.h"
 
 namespace billiards::layout {
 
-	class RandomLayoutParams : public json::Serializable {
+	class RandomPositionsParams : public json::Serializable {
 	public:
 		// optional?
 		std::optional<uint64_t> seed;
 		double ball_radius;
 		geometry::Dimensions dimensions;
+		std::list<vball::VirtualBall> balls;
 
-		RandomLayoutParams()
+		RandomPositionsParams()
 			: seed{1776}
 			, ball_radius{2.26 / 2}
 			, dimensions{92, 46}
+			, balls{}
 		{}
 
-		~RandomLayoutParams() override = default;
+		~RandomPositionsParams() override = default;
 		
 		void to_json(json::SaxWriter& writer) const override {
 			writer.begin_object();
@@ -34,6 +36,12 @@ namespace billiards::layout {
 			writer.field("ball-radius", ball_radius);
 			writer.key("dimensions");
 			dimensions.to_json(writer);
+			writer.key("balls");
+			writer.begin_array();
+			for (const auto& ball: balls) {
+				ball.to_json(writer);
+			}
+			writer.end_array();
 			writer.end_object();
 		}
 		
@@ -49,9 +57,15 @@ namespace billiards::layout {
 			if (value.contains("dimensions") && value["dimensions"].is_object()) {
 				dimensions.parse(value["dimensions"]);
 			}
+			if (value.contains("balls") && value["balls"].is_array()) {
+				balls.clear();
+				for (auto& it: value["balls"]) {
+					balls.emplace_back();
+					balls.back().parse(it);
+				}
+			}
 		}
 	};
 }
-
 
 #endif //GLVIEW_RANDOM_LAYOUT_PARAMS_H

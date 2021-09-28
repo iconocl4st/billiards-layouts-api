@@ -3,8 +3,6 @@
 //
 
 #include <iostream>
-#include <sstream>
-#include <fstream>
 #include <pthread.h>
 #include <random>
 
@@ -22,7 +20,7 @@ int main(int argc, char **argv) {
 
 	DO_STATUS_ENDPOINT();
 
-	CROW_ROUTE(app, "/random/")
+	CROW_ROUTE(app, "/random/locations/")
 		.methods("POST"_method, "OPTIONS"_method)
 		([&ran](const crow::request& req) {
 			if (req.method == "OPTIONS"_method) {
@@ -30,15 +28,15 @@ int main(int argc, char **argv) {
 			} else if (req.method == "POST"_method) {
 				nlohmann::json value = nlohmann::json::parse(req.body);
 				
-				billiards::layout::RandomLayoutParams params;
+				billiards::layout::RandomPositionsParams params;
 				if (value.contains("params") && value["params"].is_object()) {
 					params.parse(value["params"]);
 				}
 
-				billiards::layout::Layout layout;
-				billiards::layout::create_random_layout(ran, params, layout);
+				billiards::layout::Locations layout;
+				billiards::layout::generate_ball_locations(ran, params, layout);
 				
-				RETURN_SUCCESS_WITH_DATA("Generated random layout", "layout", layout);
+				RETURN_SUCCESS_WITH_DATA("Generated random locations", "locations", layout);
 			} else {
 				return crow::response(404);
 			}

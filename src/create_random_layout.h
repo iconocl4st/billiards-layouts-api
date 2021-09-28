@@ -7,13 +7,17 @@
 
 #include <random>
 
-#include "./RandomLayoutParams.h"
-#include "common/shots/Layout.h"
+#include "./RandomPositionsParams.h"
+#include "common/shots/Locations.h"
 
 namespace billiards::layout {
 
 	inline
-	void create_random_layout(std::random_device& ran, const RandomLayoutParams& params, layout::Layout& layout) {
+	void generate_ball_locations(
+		std::random_device& ran,
+		const RandomPositionsParams& params,
+		layout::Locations& layout
+	) {
 		layout.balls.clear();
 
 		unsigned seed;
@@ -29,12 +33,10 @@ namespace billiards::layout {
 		std::uniform_real_distribution<double> ydist{
 			params.ball_radius, params.dimensions.height - params.ball_radius};
 
-		// Should come from the parameters...
-		for (const config::BallInfo& info : config::balls::ALL_BALLS()) {
+		for (const vball::VirtualBall& info : params.balls) {
 			bool intersects;
 			geometry::Point point;
 			do {
-				// TODO: This allows balls too close to the edge...
 				point = geometry::Point{xdist(engine), ydist(engine)};
 				intersects = false;
 				for (const auto& other : layout.balls) {
@@ -48,6 +50,8 @@ namespace billiards::layout {
 			
 			layout.balls.emplace_back(info, point);
 		}
+
+		layout.table_dims = params.dimensions;
 	}
 }
 
