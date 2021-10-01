@@ -29,8 +29,14 @@ int main(int argc, char **argv) {
 				nlohmann::json value = nlohmann::json::parse(req.body);
 				
 				billiards::layout::RandomPositionsParams params;
-				if (value.contains("params") && value["params"].is_object()) {
-					params.parse(value["params"]);
+				billiards::json::ParseResult result;
+				if (HAS_OBJECT(value, "params")) {
+					params.parse(value["params"], result);
+				} else {
+					RETURN_ERROR("No params provided");
+				}
+				if (!result.success) {
+					RETURN_ERROR("Unable to parse params");
 				}
 
 				billiards::layout::Locations layout;

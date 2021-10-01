@@ -45,23 +45,22 @@ namespace billiards::layout {
 			writer.end_object();
 		}
 		
-		void parse(const nlohmann::json& value) override {
-			if (value.contains("seed") && value["seed"].is_number()) {
+		void parse(const nlohmann::json& value, json::ParseResult& status) override {
+			if (HAS_NUMBER(value, "seed")) {
 				seed = value["seed"].get<uint64_t>();
 			} else {
 				seed = {};
 			}
-			if (value.contains("ball-radius") && value["ball-radius"].is_number()) {
-				ball_radius = value["ball-radius"].get<double>();
-			}
-			if (value.contains("dimensions") && value["dimensions"].is_object()) {
-				dimensions.parse(value["dimensions"]);
-			}
-			if (value.contains("balls") && value["balls"].is_array()) {
-				balls.clear();
-				for (auto& it: value["balls"]) {
-					balls.emplace_back();
-					balls.back().parse(it);
+			ENSURE_NUMBER(status, value, "ball-radius", "Must include a ball radius");
+			ball_radius = value["ball-radius"].get<double>();
+			REQUIRE_CHILD(status, value, "dimensions", dimensions, "must include dimensions");
+			ENSURE_ARRAY(status, value, "balls", "must include balls");
+			balls.clear();
+			for (auto& it: value["balls"]) {
+				balls.emplace_back();
+				balls.back().parse(it, status);
+				if (!status.success) {
+					return;
 				}
 			}
 		}
