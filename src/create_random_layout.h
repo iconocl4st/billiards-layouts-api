@@ -7,8 +7,9 @@
 
 #include <random>
 
-#include "./RandomPositionsParams.h"
-#include "common/shots/Locations.h"
+#include "billiards_common/shots/Locations.h"
+
+#include "RandomPositionsParams.h"
 
 namespace billiards::layout {
 

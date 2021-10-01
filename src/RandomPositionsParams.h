@@ -7,7 +7,7 @@
 
 #include <optional>
 
-#include "common/shots/Locations.h"
+#include "billiards_common/shots/Locations.h"
 
 namespace billiards::layout {
 
