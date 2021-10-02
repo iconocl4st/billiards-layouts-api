@@ -9,7 +9,7 @@
 #include "billiards_common/utils/crow_common.h"
 #include "billiards_common/config/ports.h"
 
-#include "./create_random_layout.h"
+#include "create_random_layout.h"
 
 
 int main(int argc, char **argv) {
