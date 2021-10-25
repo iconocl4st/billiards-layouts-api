@@ -17,6 +17,8 @@ target_include_directories(
 	layouts_api
 	
 	PUBLIC
+
+	${PROJECT_SOURCE_DIR}/../billiards-common/src
 	${PROJECT_SOURCE_DIR}/src
 	$ENV{REPOS}/billiards-common/src
 )
