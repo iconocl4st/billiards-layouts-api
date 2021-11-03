@@ -1,0 +1,13 @@
+[Unit]
+Description=A service that stores billiards layouts.
+
+[Service]
+User=root
+WorkingDirectory=/app
+ExecStart=/app/layouts_api
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+After=network-online.target
+Wants=network-online.target
