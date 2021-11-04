@@ -11,7 +11,7 @@ add_executable(
         layouts_api
 
 		${CMAKE_CURRENT_SOURCE_DIR}/src/layouts_api.cpp
-)
+        src/LayoutsList.h)
 
 target_include_directories(
 	layouts_api

@@ -45,7 +45,71 @@ int main(int argc, char **argv) {
 				return crow::response(404);
 			}
 		});
+
+
+
+
+    CROW_ROUTE(app, "/layouts/")
+        .methods("POST"_method, "GET"_method, "OPTIONS"_method)
+        ([&ran](const crow::request& req) {
+            if (req.method == "OPTIONS"_method) {
+                HANDLE_OPTIONS;
+            } else if (req.method == "POST"_method) {
+                nlohmann::json value = nlohmann::json::parse(req.body);
+
+                billiards::layout::RandomPositionsParams params;
+                billiards::json::ParseResult result;
+                if (HAS_OBJECT(value, "params")) {
+                    params.parse(value["params"], result);
+                } else {
+                    RETURN_ERROR("No params provided");
+                }
+                if (!result.success) {
+                    RETURN_ERROR("Unable to parse params");
+                }
+
+                billiards::layout::Locations layout;
+                billiards::layout::generate_ball_locations(ran, params, layout);
+
+                RETURN_SUCCESS_WITH_DATA("Generated random locations", "locations", layout);
+            } else {
+                return crow::response(404);
+            }
+        });
+
+    CROW_ROUTE(app, "/layouts/<str>")
+        .methods("POST"_method, "GET"_method, "OPTIONS"_method)
+        ([&ran](const crow::request& req, const std::string& string) {
+            if (req.method == "OPTIONS"_method) {
+                HANDLE_OPTIONS;
+            } else if (req.method == "POST"_method) {
+                nlohmann::json value = nlohmann::json::parse(req.body);
+
+                billiards::layout::RandomPositionsParams params;
+                billiards::json::ParseResult result;
+                if (HAS_OBJECT(value, "params")) {
+                    params.parse(value["params"], result);
+                } else {
+                    RETURN_ERROR("No params provided");
+                }
+                if (!result.success) {
+                    RETURN_ERROR("Unable to parse params");
+                }
+
+                billiards::layout::Locations layout;
+                billiards::layout::generate_ball_locations(ran, params, layout);
+
+                RETURN_SUCCESS_WITH_DATA("Generated random locations", "locations", layout);
+            } else {
+                return crow::response(404);
+            }
+        });
 	// Add graphics...
+
+    // create a layout
+    // list all layouts
+    // update a layout
+    // delete a layout
 
 	app.port(billiards::config::ports::LAYOUTS_API_PORT).run();
 	return 0;
