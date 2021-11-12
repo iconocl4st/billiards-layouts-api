@@ -11,7 +11,7 @@ add_executable(
         layouts_api
 
 		${CMAKE_CURRENT_SOURCE_DIR}/src/layouts_api.cpp
-        src/LayoutsList.h)
+        src/layout_manager_impl.h src/UnqlManager.h)
 
 target_include_directories(
 	layouts_api
@@ -29,6 +29,7 @@ target_link_libraries(
 
 	Threads::Threads
 	${Boost_SYSTEM_LIBRARY}
+	unqlite
 )
 
 install(TARGETS layouts_api DESTINATION /app)

@@ -12,15 +12,11 @@ namespace billiards::layouts {
     class LayoutEntry : public json::Serializable {
     public:
         boost::uuids::uuid uuid;
-        // Maybe more things here...
+        std::string name;
+        long lastModified;
 
         explicit LayoutEntry(boost::uuids::uuid uuid) : uuid{uuid} {}
         ~LayoutEntry() override = default;
-
-
-
-
-
     };
 
     class LayoutsList : public json::Serializable {
