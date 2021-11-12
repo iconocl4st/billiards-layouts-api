@@ -6,12 +6,14 @@
 #define IDEA_LAYOUTSMANAGER_H
 
 #include "billiards_common/layouts/Layout.h"
+#include "billiards_common/layouts/LayoutListItem.h"
 #include "billiards_common/unql/Record.h"
 
 namespace billiards::layout {
 
 	typedef unql::Record<Layout> LayoutRecord;
-    typedef std::function<bool(const LayoutRecord& record)> LayoutReceiver;
+	typedef unql::Record<LayoutListItem> ListItemRecord;
+    typedef std::function<bool(const ListItemRecord& record)> ListItemReceiver;
 
     class LayoutManager {
     public:
@@ -22,7 +24,7 @@ namespace billiards::layout {
         // Could have a page...
         virtual bool fetch(const boost::uuids::uuid& uuid, LayoutRecord& result) = 0;
 		virtual bool update(const boost::uuids::uuid& uuid, const nlohmann::json& value, LayoutRecord& result) = 0;
-		virtual bool list(LayoutReceiver& receiver) = 0;
+		virtual bool list(ListItemReceiver& receiver) = 0;
         virtual bool remove(const boost::uuids::uuid& uuid) = 0;
     };
 }

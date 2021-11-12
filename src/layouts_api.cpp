@@ -19,6 +19,7 @@ int main(int argc, char **argv) {
 	crow::SimpleApp app;
 
 	auto manager/*_impl*/ = std::make_unique<billiards::layout::LayoutsManagerImpl>("./layouts.db");
+//	manager->store.clear();
 //	auto manager = std::dynamic_pointer_cast<billiards::layout::LayoutManager>(manager_impl);
 
 	DO_STATUS_ENDPOINT();
@@ -57,30 +58,37 @@ int main(int argc, char **argv) {
 			if (req.method == "OPTIONS"_method) {
 				HANDLE_OPTIONS;
 			} else if (req.method == "GET"_method) {
-				billiards::utils::DefaultResponse def_resp{
-					"Listed layouts",
-					true,
-					"layouts",
-					[&](billiards::json::SaxWriter& writer) {
-						std::function<bool(const billiards::layout::LayoutRecord&)> w{
-							[&](const billiards::layout::LayoutRecord& record) {
-								record.to_json(writer);
-								return true;
-							}
-						};
-						writer.begin_array();
-						bool successful = manager->list(w);
-						writer.end_array();
-
-						if (!successful) {
-							std::cerr << "Listing was not successful" << std::endl;
+				auto callable = [&](billiards::json::SaxWriter& writer) {
+					billiards::layout::ListItemReceiver r{
+						[&](const billiards::layout::ListItemRecord& record) {
+							record.to_json(writer);
+							return true;
 						}
+					};
+					writer.begin_array();
+					bool successful = manager->list(r);
+					writer.end_array();
+
+					if (!successful) {
+						std::cerr << "Listing was not successful" << std::endl;
 					}
 				};
+				billiards::utils::DefaultResponse def_resp{
+					"Listed layouts", true, "layouts", callable};
 
 				RETURN_RESPONSE(def_resp);
 			} else if (req.method == "POST"_method) {
 				billiards::layout::LayoutRecord record;
+
+				nlohmann::json value = nlohmann::json::parse(req.body);
+				if (HAS_OBJECT(value, "input")) {
+					billiards::json::ParseResult status;
+					record.obj.parse(value["input"], status);
+					if (!status.success) {
+						RETURN_ERROR("Could not parse input value");
+					}
+				}
+
 				bool success = manager->create(record);
 				if (!success) {
 					RETURN_ERROR("Unable to create new layout");
@@ -92,7 +100,7 @@ int main(int argc, char **argv) {
 			}
 		});
 
-	CROW_ROUTE(app, "/layouts/<str>")
+	CROW_ROUTE(app, "/layout/<str>")
 		.methods("PUT"_method, "DELETE"_method, "GET"_method, "OPTIONS"_method)
 		([&](const crow::request& req, const std::string& id_str) {
 			if (req.method == "OPTIONS"_method) {
@@ -115,23 +123,16 @@ int main(int argc, char **argv) {
 				}
 				RETURN_SUCCESS("Successfully removed layout");
 			} else if (req.method == "PUT"_method) {
-				nlohmann::json updates = nlohmann::json::parse(req.body);
+				nlohmann::json value = nlohmann::json::parse(req.body);
 
-//				billiards::layout::Layout updates;
-//				billiards::json::ParseResult result;
-//				if (HAS_OBJECT(value, "updates")) {
-//					updates.parse(value["updates"], result);
-//				} else {
-//					RETURN_ERROR("No layout updates provided");
-//				}
-//				if (!result.success) {
-//					RETURN_ERROR("Unable to parse layout updates");
-//				}
+				if (!HAS_OBJECT(value, "updates")) {
+					RETURN_ERROR("No layout updates provided");
+				}
 
 				auto uuid = boost::lexical_cast<boost::uuids::uuid>(id_str);
 
 				billiards::layout::LayoutRecord record;
-				bool success = manager->update(uuid, updates, record);
+				bool success = manager->update(uuid, value["updates"], record);
 				if (!success) {
 					RETURN_ERROR("Unable to update layout");
 				}

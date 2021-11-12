@@ -29,7 +29,7 @@ namespace billiards::layout {
 		bool update(const boost::uuids::uuid& uuid, const nlohmann::json& updates, LayoutRecord& result) override {
 			return store.update(uuid, updates, result);
 		}
-		bool list(LayoutReceiver& receiver) override {
+		bool list(ListItemReceiver& receiver) override {
 			return store.list(receiver);
 		}
 		bool remove(const boost::uuids::uuid& uuid) override {
