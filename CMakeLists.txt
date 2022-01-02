@@ -6,12 +6,13 @@ set(CMAKE_CXX_STANDARD 17)
 
 find_package(Threads REQUIRED)
 find_package(Boost COMPONENTS system REQUIRED)
+find_package (Eigen3 3.3 REQUIRED NO_MODULE HINTS /usr/share/cmake/Modules/)
 
 add_executable(
-        layouts_api
+    layouts_api
 
-		${CMAKE_CURRENT_SOURCE_DIR}/src/layouts_api.cpp
-        src/layout_manager_impl.h src/UnqlManager.h)
+	${CMAKE_CURRENT_SOURCE_DIR}/src/layouts_api.cpp
+)
 
 target_include_directories(
 	layouts_api
@@ -27,6 +28,7 @@ target_include_directories(
 target_link_libraries(
     layouts_api
 
+	Eigen3::Eigen
 	Threads::Threads
 	${Boost_SYSTEM_LIBRARY}
 	unqlite

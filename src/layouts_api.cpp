@@ -9,6 +9,8 @@
 #include "billiards_common/utils/crow_common.h"
 #include "billiards_common/config/ports.h"
 
+#include "random_practice/generate_random_practice.h"
+
 #include "layout_manager_impl.h"
 #include "LayoutsManager.h"
 #include "create_random_layout.h"
@@ -51,6 +53,40 @@ int main(int argc, char **argv) {
 				return crow::response(404);
 			}
 		});
+
+	CROW_ROUTE(app, "/random/practice/")
+		.methods("POST"_method, "OPTIONS"_method)
+			([&ran](const crow::request& req) {
+				if (req.method == "OPTIONS"_method) {
+					HANDLE_OPTIONS;
+				} else if (req.method == "POST"_method) {
+					nlohmann::json value = nlohmann::json::parse(req.body);
+
+					billiards::layout::RandomPracticeParams params;
+					billiards::json::ParseResult result;
+					if (HAS_OBJECT(value, "params")) {
+						params.parse(value["params"], result);
+					} else {
+						RETURN_ERROR("No params provided");
+					}
+					if (!result.success) {
+						RETURN_ERROR("Unable to parse params");
+					}
+
+					billiards::layout::Layout layout;
+					billiards::layout::GenResult gen_result;
+					billiards::layout::generate_random_practice(ran, params, layout, gen_result);
+					if (!gen_result.success) {
+						std::stringstream ss;
+						ss << "Unable to generate practice: ";
+						ss << gen_result.reason.str();
+						RETURN_ERROR(ss.str());
+					}
+					RETURN_SUCCESS_WITH_DATA("Generated a random practice layout", "layout", layout);
+				} else {
+					return crow::response(404);
+				}
+			});
 
 	CROW_ROUTE(app, "/layouts/")
 		.methods("POST"_method, "GET"_method, "OPTIONS"_method)

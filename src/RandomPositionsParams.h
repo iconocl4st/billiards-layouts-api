@@ -16,13 +16,13 @@ namespace billiards::layout {
 		// optional?
 		std::optional<uint64_t> seed;
 		double ball_radius;
-		geometry::Dimensions dimensions;
+		config::TableDimensions dimensions;
 		std::list<vball::VirtualBall> balls;
 
 		RandomPositionsParams()
 			: seed{1776}
 			, ball_radius{2.26 / 2}
-			, dimensions{92, 46}
+			, dimensions{}
 			, balls{}
 		{}
 
