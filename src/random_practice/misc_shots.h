@@ -102,18 +102,19 @@ namespace billiards::layout {
 		bool isLongRail = bool_dist(engine);
 		isLongRail = false;
 
+		const auto pockets = params.config.pockets();
 		for (int att = 0; att < MAX_ATTEMPTS; att++) {
 			gen.cue_loc() = random_position(engine, gen.dims(), gen.cue_r);
 			gen.obj_loc() = random_position(engine, gen.dims(), gen.obj_r);
 			rail_step->rail = rail_dist(engine);
 
-			auto num_pockets = params.config.pockets.size();
+			auto num_pockets = config::constants::NUM_POCKETS;
 			std::vector<int> possible_pockets;
-			for (int i = 0; i < num_pockets; i++) {
+			for (int i = 0; i < pockets.size(); i++) {
 				if (same_direction(
 					params.config.rail(rail_step->rail),
 					gen.obj_loc(),
-					params.config.pockets[i]
+					pockets[i]
 				)) {
 					possible_pockets.push_back(i);
 				}

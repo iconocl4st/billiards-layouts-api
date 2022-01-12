@@ -85,10 +85,11 @@ namespace billiards::layout {
 
 		[[nodiscard]] inline
 		bool assign_strike_pocket() {
-			const auto num_pockets = params.config.pockets.size();
+			const auto num_pockets = config::constants::NUM_POCKETS;
 			std::vector<int> possible_pockets{}; // num_pockets;
-			for (int i = 0; i < num_pockets; i++) {
-				if (same_direction(cue_loc(), obj_loc(), params.config.pockets[i])) {
+			const auto pockets = params.config.pockets();
+			for (int i = 0; i < pockets.size(); i++) {
+				if (same_direction(cue_loc(), obj_loc(), pockets[i])) {
 					possible_pockets.push_back(i);
 				}
 			}
